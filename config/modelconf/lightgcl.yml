@@ -21,7 +21,7 @@ test:
 
 data:
   type: general_cf
-  name: ifasion
+  name: amazon
 
 model:
   name: lightgcl
