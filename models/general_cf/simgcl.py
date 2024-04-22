@@ -7,7 +7,7 @@ from models.loss_utils import cal_bpr_loss, reg_params, cal_infonce_loss
 
 init = nn.init.xavier_uniform_
 uniformInit = nn.init.uniform
-
+# s
 class SimGCL(LightGCN):
 	def __init__(self, data_handler):
 		super(SimGCL, self).__init__(data_handler)
