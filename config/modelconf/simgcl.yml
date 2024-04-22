@@ -21,7 +21,7 @@ test:
 
 data:
   type: general_cf
-  name: lastfm
+  name: beerAdvocate
 
 model:
   name: simgcl
