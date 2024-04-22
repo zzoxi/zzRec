@@ -22,7 +22,7 @@ test:
 
 data:
   type: general_cf
-  name: beerAdvocate
+  name: ifasion
 
 model:
   name: autocf

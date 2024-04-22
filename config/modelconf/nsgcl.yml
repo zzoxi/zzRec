@@ -21,22 +21,32 @@ test:
 
 data:
   type: general_cf
-  name: ifasion
+  name: gowalla
 
+# 模型参数
 model:
-  name: sgl
+  name: nsgcl
+  layer_num: 3
+  denoise_num: 5
+  vgae_num: 4
+  reg_weight: 1.0e-8
+  alpha: 5.0e-3
+  beta: 0.1
+  gamma: 1.0e-2
+  temperature: 0.1
   keep_rate: 0.5
-  layer_num: 2
-  reg_weight: 1.0e-5
-  cl_weight: 1.0
-  temperature: 0.2
   embedding_size: 32
-  augmentation: edge_drop
 
+# 数据集 2
+
+# 数据集 3
+
+
+# 网格搜索
 tune:
   enable: false
-  hyperparameters: [layer_num, reg_weight, cl_weight, temperature]
+  hyperparameters: [layer_num, cl_weight, temperature, eps]
   layer_num: [2, 3]
-  reg_weight: [1.0e-4, 1.0e-5, 1.0e-6]
-  cl_weight: [1.0, 1.0e-1, 1.0e-2]
-  temperature: [0.1, 0.2, 0.5]
+  cl_weight: [1.0e-1, 1.0e-2, 1.0e-3]
+  temperature: [0.1, 0.2, 0.5, 1.0]
+  eps: [0.1, 0.2, 0.5, 0.9]
