@@ -18,7 +18,7 @@ class DataHandlerGeneralCF:
 		elif configs['data']['name'] == 'lastfm':
 			predir = './datasets/general_cf/lastfm/'
 		elif configs['data']['name'] == 'ifasion':
-			predir = './datasets/general_cf/ifasion/'
+			predir = './datasets/general_cf/ifashion/'
 		elif configs['data']['name'] == 'beerAdvocate':
 			predir = './datasets/general_cf/beerAdvocate/'
 		self.trn_file = predir + 'train_mat.pkl'
