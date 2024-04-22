@@ -16,11 +16,11 @@ class DataHandlerGeneralCF:
 		elif configs['data']['name'] == 'amazon':
 			predir = './datasets/general_cf/sparse_amazon/'
         elif configs['data']['name'] == 'lastfm':
-        	predir = './datasets/general_cf/lastfm/'
+            predir = './datasets/general_cf/lastfm/'
         elif configs['data']['name'] == 'ifasion':
-        	predir = './datasets/general_cf/ifasion/'
+            predir = './datasets/general_cf/ifasion/'
         elif configs['data']['name'] == 'beer':
-        	predir = './datasets/general_cf/beerAdvocate/'
+            predir = './datasets/general_cf/beerAdvocate/'
 		self.trn_file = predir + 'train_mat.pkl'
 		self.val_file = predir + 'valid_mat.pkl'
 		self.tst_file = predir + 'test_mat.pkl'
