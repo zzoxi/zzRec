@@ -21,7 +21,7 @@ test:
 
 data:
   type: general_cf
-  name: yelp
+  name: ifasion
 
 # 模型参数
 # model:
