@@ -27,8 +27,7 @@ class NsGCL(LightGCN):
 
 
 		self.alpha = configs['model']['alpha'] # cl_loss权重
-		self.beta = configs['model']['beta'] # kl_loss权重
-		self.gamma = configs['model']['gamma'] # denoise_loss权重
+		self.beta = configs['model']['beta'] # cl_loss2权重
 		self.reg_weight = configs['model']['reg_weight'] # reg_loss
 		# tau
 		self.temperature = configs['model']['temperature'] # tau
@@ -80,26 +79,27 @@ class NsGCL(LightGCN):
 		min_u_d = np.min(u_d)
 		min_i_d = np.min(i_d)
 
-		max_x = max_u_d + max_i_d
-		min_x = min_u_d + min_i_d
+		max_x = max_u_d #+ max_i_d
+		min_x = min_u_d # + min_i_d
 
-		coo_mat = self.mat_a.copy()
-		print(type(coo_mat))
-
+		coo_mat = self.mat_a.copy().tocoo()
+		# print(type(coo_mat))
+		# print
+		for i, (r, c, v) in enumerate(zip(coo_mat.row, coo_mat.col, coo_mat.data)):
+			if v != 0:
+				# random_number = random.random()
+				value = degrees[r]  + degrees[c]  # 重新计算值 主要是不能为0否则不能反向传播
+				weight = (value - min_x ) /  (max_x - min_x)
+				# if random_number < weight:
+				coo_mat.data[i] = weight
 
 		coo_mat = self._normalize_adj(coo_mat)
-		print(type(coo_mat))
+		# print(type(coo_mat))
 
 		# count = 0
 		# 遍历非零元素，根据行和列重新计算并赋值
 
-		for i, (r, c, v) in enumerate(zip(coo_mat.row, coo_mat.col, coo_mat.data)):
-			if v != 0:
-				random_number = random.random()
-				value = degrees[r] + degrees[c]  # 重新计算值
-				weight = (value - min_x ) /  (max_x - min_x)
-				if random_number < weight:
-					coo_mat.data[i] = 0
+		
 
 
 		# 生成新的adj make torch tensor
@@ -119,7 +119,7 @@ class NsGCL(LightGCN):
 		embeds = t.concat([self.user_embeds, self.item_embeds], dim=0)
 		embeds_list = [embeds]
 		for i in range(self.layer_num):
-			embeds = t.spmm(self.adj, embeds_list[-1])
+			embeds = t.spmm(self.new_adj, embeds_list[-1])
 			embeds_list.append(embeds)
 		embeds = sum(embeds_list)
 		self.final_embeds = embeds
@@ -162,18 +162,9 @@ class NsGCL(LightGCN):
 
 		# 重参数
 		noise = t.randn_like(std)
-		noised_emb = mean + 0.1 * std * noise
-		return noised_emb[:self.user_num], noised_emb[self.user_num:], mean, std
+		noised_emb = mean + 0.01 * std * noise
+		return noised_emb[:self.user_num], noised_emb[self.user_num:]
 
-	def final_forward(self, user_embeds, item_embeds, first_denoise):
-		if first_denoise is True:
-			# user_embeds, item_embeds = self.denoise_forward(user_embeds, item_embeds)
-			user_embeds, item_embeds, mean, std = self.vgae_forward(user_embeds, item_embeds)
-		else:
-			user_embeds, item_embeds, mean, std = self.vgae_forward(user_embeds, item_embeds)
-			# user_embeds, item_embeds = self.denoise_forward(user_embeds, item_embeds)
-
-		return user_embeds, item_embeds, mean, std
 		# return user_embeds, item_embeds
 
 
@@ -200,14 +191,16 @@ class NsGCL(LightGCN):
 		u = self.user_embeds
 		v = self.item_embeds
 
-		user_embeds1, item_embeds1,mean1, std1 = self.final_forward(u, v, True)
-		user_embeds2, item_embeds2, mean2, std2 = self.final_forward(u, v, False)
+		user_embeds1, item_embeds1 = self.vgae_forward(u, v)
+		user_embeds2, item_embeds2 = self.vgae_forward(u, v)
 		user_embeds3, item_embeds3 = self.base_forward()
-
+		user_embeds4, item_embeds4 = self.denoise_forward(u, v)
 
 		anc_embeds1, pos_embeds1, neg_embeds1 = self._pick_embeds(user_embeds1, item_embeds1, batch_data)
 		anc_embeds2, pos_embeds2, neg_embeds2 = self._pick_embeds(user_embeds2, item_embeds2, batch_data)
 		anc_embeds3, pos_embeds3, neg_embeds3 = self._pick_embeds(user_embeds3, item_embeds3, batch_data)
+		anc_embeds4, pos_embeds4, neg_embeds4 = self._pick_embeds(user_embeds4, item_embeds4, batch_data)
+
 
 		# bpr
 		bpr_loss = cal_bpr_loss(anc_embeds3, pos_embeds3, neg_embeds3) / anc_embeds3.shape[0]
@@ -218,18 +211,19 @@ class NsGCL(LightGCN):
 		cl_loss /= anc_embeds1.shape[0]
 		cl_loss *= self.alpha
 
+		# 1 4比更好 base_forward改成new_adj更好  晚上tu一下
+		cl_loss2 = cal_infonce_loss(anc_embeds1, anc_embeds4, user_embeds4, self.temperature) + \
+		cal_infonce_loss(pos_embeds1, pos_embeds4, item_embeds4, self.temperature)
+		cl_loss2 /= anc_embeds1.shape[0]
+		cl_loss2 *= self.beta
 
 		# 计算reg 损失
 		reg_loss = self.reg_weight * reg_params(self)
 
-		kl_loss1 = self.kl_loss(mean1, std1)
-		kl_loss2 = self.kl_loss(mean2, std2)
-		kl_loss = self.beta* (kl_loss1 + kl_loss2)
 
 
-
-		loss = bpr_loss + reg_loss + cl_loss
-		losses = {'bpr_loss': bpr_loss, 'reg_loss': reg_loss, 'cl_loss': cl_loss, 'kl_loss': 0}
+		loss = bpr_loss + reg_loss + cl_loss   + cl_loss2
+		losses = {'bpr_loss': bpr_loss, 'reg_loss': reg_loss, 'cl_loss': cl_loss, 'cl_loss2': cl_loss2}
 		return loss, losses
 
 	def full_predict(self, batch_data):

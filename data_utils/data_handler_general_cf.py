@@ -70,6 +70,8 @@ class DataHandlerGeneralCF:
 		mat = sp.vstack([sp.hstack([a, mat]), sp.hstack([mat.transpose(), b])])
 		mat = (mat != 0) * 1.0
 		# mat = (mat + sp.eye(mat.shape[0])) * 1.0# MARK
+		self.mat_a = mat.copy()
+		
 		mat = self._normalize_adj(mat)
 
 		# make torch tensor
