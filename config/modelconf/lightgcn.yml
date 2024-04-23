@@ -22,7 +22,7 @@ test:
 
 data:
   type: general_cf # choose in {general_cf, multi_behavior, sequential, social}
-  name: amazon
+  name: yelp
 
 
 model:
