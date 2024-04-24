@@ -119,7 +119,7 @@ class NsGCL(LightGCN):
 		embeds = t.concat([self.user_embeds, self.item_embeds], dim=0)
 		embeds_list = [embeds]
 		for i in range(self.layer_num):
-			embeds = t.spmm(self.new_adj, embeds_list[-1])
+			embeds = t.spmm(self.adj, embeds_list[-1])
 			embeds_list.append(embeds)
 		embeds = sum(embeds_list)
 		self.final_embeds = embeds

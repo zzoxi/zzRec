@@ -21,7 +21,7 @@ test:
 
 data:
   type: general_cf
-  name: yelp
+  name: ml-1m
 
 # 模型参数
 # model:
@@ -44,9 +44,9 @@ model:
   denoise_num: 2
   vgae_num: 4
   reg_weight: 1.0e-8
-  alpha: 5.0e-3
-  beta: 5.0e-3
-  temperature: 0.1
+  alpha: 0.005
+  beta: 0.005
+  temperature: 0.2
   keep_rate: 0.5
   embedding_size: 32
 
@@ -56,10 +56,11 @@ model:
 # 网格搜索
 tune:
   enable: true
-  hyperparameters: [layer_num, denoise_num, vgae_num, alpha, beta, temperature]
-  layer_num: [2, 3, 4]
-  denoise_num: [2, 3, 4]
-  vgae_num: [2, 3, 4]
-  alpha: [2.0e-3, 5.0e-3, 1.0e-2]
-  beta: [2.0e-3, 5.0e-3, 1.0e-2]
-  temperature: [0.05, 0.1, 0.2, 0.5]
+  hyperparameters: [layer_num, denoise_num, vgae_num, reg_weight, alpha, beta, temperature]
+  layer_num: [2]
+  denoise_num: [2]
+  vgae_num: [4]
+  reg_weight: [1.0e-8, 1.0e-7]
+  alpha: [1.0e-3, 2.0e-3, 5.0e-3, 1.0e-2, 2.0e-2]
+  beta: [1.0e-3, 2.0e-3, 5.0e-3, 1.0e-2, 2.0e-2]
+  temperature: [0.2]
