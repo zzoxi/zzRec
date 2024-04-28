@@ -37,7 +37,7 @@ model:
   cluster_num: 50
 
 tune:
-  enable: true
+  enable: false
   hyperparameters: [temperature, proto_weight, struct_weight]
   temperature: [0.1, 0.2, 0.3, 0.5, 1.0]
   proto_weight: [1.0e-2, 1.0e-3, 1.0e-4]

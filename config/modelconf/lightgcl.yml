@@ -34,6 +34,9 @@ model:
   svd_q: 5
 
 tune:
-  enable: false
-  hyperparameters: []
-  dropout: []
+  enable: true
+  hyperparameters: [layer_num, cl_weight, reg_weight]
+  layer_num: [2, 3]
+  reg_weight: [1.0e-8, 1.0e-6, 1.0e-5]
+  cl_weight: [1.0, 1.0e-1, 1.0e-2]
+  temperature: [0.1, 0.2]

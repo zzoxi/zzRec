@@ -21,7 +21,7 @@ test:
 
 data:
   type: general_cf
-  name: ml-1m
+  name: lastfm
 
 # 模型参数
 # model:
@@ -57,10 +57,10 @@ model:
 tune:
   enable: true
   hyperparameters: [layer_num, denoise_num, vgae_num, reg_weight, alpha, beta, temperature]
-  layer_num: [2]
+  layer_num: [2, 3, 4]
   denoise_num: [2]
   vgae_num: [4]
-  reg_weight: [1.0e-8, 1.0e-7]
+  reg_weight: [1.0e-4, 1.0e-3]
   alpha: [1.0e-3, 2.0e-3, 5.0e-3, 1.0e-2, 2.0e-2]
   beta: [1.0e-3, 2.0e-3, 5.0e-3, 1.0e-2, 2.0e-2]
   temperature: [0.2]
